@@ -2,6 +2,7 @@
 <use name="DataFormats/MuonDetId"/>
 <use name="Geometry/RPCGeometry"/>
 <use name="DQMServices/Core"/>
+<use name="EventFilter/RPCRawToDigi"/>
 <use name="root"/>
 <export>
   <lib name="1"/>

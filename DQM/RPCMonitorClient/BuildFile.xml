@@ -18,3 +18,4 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/RunInfo"/>
 <use name="CondCore/PopCon"/>
+<use name="DQM/RPCMonitorDigi"/>
