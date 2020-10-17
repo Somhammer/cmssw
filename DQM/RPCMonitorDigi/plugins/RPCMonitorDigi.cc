@@ -1,5 +1,4 @@
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
-#include "DQM/RPCMonitorDigi/interface/utils.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
@@ -9,6 +8,9 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "DQM/RPCMonitorDigi/interface/RPCRollNameHelper.h"
+#include "DQM/RPCMonitorDigi/interface/RPCHistoHelper.h"
 
 #include <set>
 #include <sstream>
@@ -65,16 +67,14 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& 
           }
 
           //booking all histograms
-          RPCGeomServ rpcsrv(rpcId);
-          std::string nameID = rpcsrv.name();
+          const std::string nameID = RPCRollNameHelper::rollName(&rpcId);
           if (useMuonDigis_)
             bookRollME(ibooker, rpcId, rpcGeo, muonFolder_, meMuonCollection[nameID]);
           bookRollME(ibooker, rpcId, rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
         }
       } else {
         RPCDetId rpcId = roles[0]->id();  //any roll would do - here I just take the first one
-        RPCGeomServ rpcsrv(rpcId);
-        std::string nameID = rpcsrv.chambername();
+        const std::string nameID = RPCRollNameHelper::chamberName(&rpcId);
         if (useMuonDigis_)
           bookRollME(ibooker, rpcId, rpcGeo, muonFolder_, meMuonCollection[nameID]);
         bookRollME(ibooker, rpcId, rpcGeo, noiseFolder_, meNoiseCollection[nameID]);
@@ -248,9 +248,6 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
     RPCDetId detId = (*detIdIter).first;
 
     //get roll number
-    rpcdqm::utils rpcUtils;
-    int nr = rpcUtils.detId2RollNr(detId);
-
     RPCGeomServ geoServ(detId);
     std::string nameRoll = "";
 
@@ -366,7 +363,8 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
       os << "Occupancy_" << wheelOrDiskType << "_" << wheelOrDiskNumber << "_Sector_" << sector;
       if (meSectorRing[os.str()]) {
         for (int s = firstStrip; s <= lastStrip; s++) {  //Loop on digis
-          meSectorRing[os.str()]->Fill(s, nr);
+          auto bins = RPCHistoHelper::findBinRoll(&detId);
+          meSectorRing[os.str()]->Fill(bins.first, bins.second);
         }
       }
 
@@ -392,8 +390,10 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
 
         os.str("");
         os << "Occupancy_Roll_vs_Sector_" << wheelOrDiskType << "_" << wheelOrDiskNumber;
-        if (meWheelDisk[os.str()])
-          meWheelDisk[os.str()]->Fill(sector, nr, clusterSize);
+        if (meWheelDisk[os.str()]) {
+          auto bins = RPCHistoHelper::findBinRoll(&detId);
+          meWheelDisk[os.str()]->Fill(bins.first, bins.second, clusterSize);
+        }
 
       } else {
         os.str("");

@@ -2,7 +2,8 @@
 #include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <DQM/RPCMonitorDigi/interface/utils.h>
+#include "DQM/RPCMonitorDigi/interface/RPCHistoHelper.h"
+#include "DQM/RPCMonitorDigi/interface/utils.h"
 #include <iomanip>
 
 void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
@@ -97,6 +98,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
       meMap[os.str()]->setAxisTitle("strip", 1);
       rpcdqm::utils rpcUtils;
       rpcUtils.labelYAxisRoll(meMap[os.str()], 0, wheel, true);
+      //RPCHistoHelper::decorateAxisBarrelRoll(meMap[os.str()]->getTH1(), "Occupancy", wheel);
     }
   }
 
@@ -121,7 +123,8 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
 
         meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 96, 0.5, 96.5, 18, 0.5, 18.5);
         meMap[os.str()]->setAxisTitle("strip", 1);
-        rpcdqm::RPCMEHelper::setNoAlphanumeric(meMap[os.str()]);
+        meMap[os.str()]->getTH1()->GetXaxis()->SetNoAlphanumeric(true);
+        meMap[os.str()]->getTH1()->GetYaxis()->SetNoAlphanumeric(true);
 
         std::stringstream yLabel;
         for (int i = 1; i <= 18; i++) {
@@ -158,7 +161,8 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
 
         meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 96, 0.5, 96.5, 18, 18.5, 36.5);
         meMap[os.str()]->setAxisTitle("strip", 1);
-        rpcdqm::RPCMEHelper::setNoAlphanumeric(meMap[os.str()]);
+        meMap[os.str()]->getTH1()->GetXaxis()->SetNoAlphanumeric(true);
+        meMap[os.str()]->getTH1()->GetYaxis()->SetNoAlphanumeric(true);
 
         for (int i = 1; i <= 18; i++) {
           yLabel.str("");
@@ -200,7 +204,6 @@ void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder(subsystemFolder_ + "/" + recHitType + "/" + globalFolder_);
 
   std::stringstream os, label, name, title;
-  rpcdqm::utils rpcUtils;
 
   for (int wheel = -2; wheel <= 2; wheel++) {  //Loop on wheel
     os.str("");
@@ -215,8 +218,7 @@ void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker& ibooker,
     os.str("");
     os << "Occupancy_Roll_vs_Sector_Wheel_" << wheel;
     meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
-    rpcUtils.labelXAxisSector(meMap[os.str()]);
-    rpcUtils.labelYAxisRoll(meMap[os.str()], 0, wheel, true);
+    RPCHistoHelper::decorateAxisBarrelRoll(meMap[os.str()]->getTH1(), "Occupancy", wheel);
 
     os.str("");
     os << "BxDistribution_Wheel_" << wheel;
@@ -240,8 +242,7 @@ void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker& ibooker,
     os << "Occupancy_Ring_vs_Segment_Disk_" << disk;
     meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 36, 0.5, 36.5, 6, 0.5, 6.5);
 
-    rpcUtils.labelXAxisSegment(meMap[os.str()]);
-    rpcUtils.labelYAxisRing(meMap[os.str()], 2, true);
+    RPCHistoHelper::decorateAxisEndcapRoll(meMap[os.str()]->getTH1(), "Occupancy", disk);
 
     os.str("");
     os << "BxDistribution_Disk_" << disk;
