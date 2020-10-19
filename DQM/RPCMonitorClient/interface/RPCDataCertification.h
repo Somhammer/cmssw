@@ -3,12 +3,15 @@
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/RPCMonitorClient/interface/RPCSummaryMap.h"
 
-class RPCDataCertification : public DQMEDHarvester
+class RPCDataCertification : public DQMEDHarvester, RPCSummaryMap
 {
 public:
   RPCDataCertification(const edm::ParameterSet& pset);
   ~RPCDataCertification() override = default;
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
 
 protected:
   void dqmEndLuminosityBlock(DQMStore::IBooker&,
@@ -21,7 +24,6 @@ protected:
   void checkFED(edm::EventSetup const&);
 
   const int minFEDId_, maxFEDId_;
-  const int nDisks_;
   const bool isOfflineDQM_;
 
   bool isFEDChecked_;

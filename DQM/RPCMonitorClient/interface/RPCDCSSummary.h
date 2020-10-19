@@ -3,13 +3,15 @@
 
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQM/RPCMonitorClient/interface/RPCSummaryMap.h"
 
-class RPCDCSSummary : public DQMEDHarvester
+class RPCDCSSummary : public DQMEDHarvester, RPCSummaryMap
 {
 public:
   RPCDCSSummary(const edm::ParameterSet &);
   ~RPCDCSSummary() override = default;
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
 
 protected:
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
@@ -24,7 +26,6 @@ private:
   void checkDCSbit(edm::EventSetup const &);
 
   const int minFEDId_, maxFEDId_;
-  const int nDisks_;
   const int isOfflineDQM_;
 
   bool isFilled_;

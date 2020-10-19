@@ -1,14 +1,16 @@
 #ifndef DQM_RPCMonitorClient_DQMDaqInfo_H
 #define DQM_RPCMonitorClient_DQMDaqInfo_H
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 
 class RPCDaqInfo : public DQMEDHarvester
 {
 public:
   RPCDaqInfo(const edm::ParameterSet &);
   ~RPCDaqInfo() override = default;
+  typedef dqm::harvesting::DQMStore DQMStore;
+  typedef dqm::harvesting::MonitorElement MonitorElement;
 
 protected:
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
@@ -21,7 +23,6 @@ protected:
   void myBooker(DQMStore::IBooker &);
 
   const int minFEDId_, maxFEDId_;
-  const int nDisks_;
   bool isBooked_;
 
   MonitorElement *meDAQFraction_;
