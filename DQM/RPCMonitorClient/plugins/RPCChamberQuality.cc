@@ -11,9 +11,8 @@ const std::string RPCChamberQuality::xLabels_[7] = {
     "Good", "OFF", "Nois.St", "Nois.Ch", "Part.Dead", "Dead", "Bad.Shape"};
 const std::string RPCChamberQuality::regions_[3] = {"EndcapNegative", "Barrel", "EndcapPositive"};
 
-RPCChamberQuality::RPCChamberQuality(const edm::ParameterSet& ps) {
-  edm::LogVerbatim("rpcchamberquality") << "[RPCChamberQuality]: Constructor";
-
+RPCChamberQuality::RPCChamberQuality(const edm::ParameterSet& ps)
+{
   prescaleFactor_ = ps.getUntrackedParameter<int>("PrescaleFactor", 5);
 
   std::string subsystemFolder = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
@@ -34,14 +33,11 @@ RPCChamberQuality::RPCChamberQuality(const edm::ParameterSet& ps) {
   lumiCounter_ = 0;
 }
 
-RPCChamberQuality::~RPCChamberQuality() { edm::LogVerbatim("rpcchamberquality") << "[RPCChamberQuality]: Destructor "; }
-
-void RPCChamberQuality::beginJob() { edm::LogVerbatim("rpcchamberquality") << "[RPCChamberQuality]: Begin job "; }
-
 void RPCChamberQuality::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                                               DQMStore::IGetter& igetter,
                                               edm::LuminosityBlock const& iLumi,
-                                              edm::EventSetup const& iSetup) {
+                                              edm::EventSetup const& iSetup)
+{
   edm::LogVerbatim("rpcchamberquality") << "[RPCChamberQuality]: End Lumi Block";
 
   if (enableDQMClients_ && !offlineDQM_) {
@@ -59,7 +55,8 @@ void RPCChamberQuality::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   lumiCounter_++;
 }
 
-void RPCChamberQuality::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
+void RPCChamberQuality::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter)
+{
   edm::LogVerbatim("rpcchamberquality") << "[RPCChamberQuality]: End Job";
 
   if (enableDQMClients_) {
@@ -73,7 +70,8 @@ void RPCChamberQuality::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter&
   }
 }
 
-void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
+void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker)
+{
   init_ = true;
 
   ibooker.setCurrentFolder(summaryDir_);
@@ -105,7 +103,6 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
   }
 
   for (int w = -2; w < 3; w++) {  //Loop on wheels
-
     histoName.str("");
     histoName << "RPCChamberQuality_Roll_vs_Sector_Wheel" << w;
     me = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
@@ -123,8 +120,7 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
   }  //end loop on wheels
 
   for (int d = -numberOfDisks_; d <= numberOfDisks_; d++) {  // Loop on disk
-    if (d == 0)
-      continue;
+    if (d == 0) continue;
     histoName.str("");
     histoName << "RPCChamberQuality_Ring_vs_Segment_Disk" << d;  //  2D histo for RPC Qtest
     me = ibooker.book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 6, 0.5, 6.5);
@@ -141,7 +137,8 @@ void RPCChamberQuality::myBooker(DQMStore::IBooker& ibooker) {
   }
 }
 
-void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
+void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter)
+{
   std::stringstream meName;
 
   meName.str("");
@@ -149,8 +146,7 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
   int rpcEvents = minEvents;
   RpcEvents = igetter.get(meName.str());
 
-  if (RpcEvents)
-    rpcEvents = (int)RpcEvents->getBinContent(1);
+  if (RpcEvents) rpcEvents = (int)RpcEvents->getBinContent(1);
 
   if (rpcEvents >= minEvents) {
     init_ = true;
@@ -212,7 +208,8 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
 void RPCChamberQuality::performeClientOperation(std::string MESufix,
                                                 int region,
                                                 MonitorElement* quality,
-                                                DQMStore::IGetter& igetter) {
+                                                DQMStore::IGetter& igetter)
+{
   MonitorElement* RCQ = nullptr;
   MonitorElement* RCQD = nullptr;
 
@@ -234,8 +231,7 @@ void RPCChamberQuality::performeClientOperation(std::string MESufix,
   meName.str("");
   meName << summaryDir_ << "/RPCChamberQuality_Distribution" << MESufix.substr(pos);
   RCQD = igetter.get(meName.str());
-  if (RCQD)
-    RCQD->Reset();
+  if (RCQD) RCQD->Reset();
 
   //get HV Histo
   meName.str("");
@@ -268,10 +264,8 @@ void RPCChamberQuality::performeClientOperation(std::string MESufix,
 
   int xBinMax, yBinMax;
 
-  if (region != 0)
-    xBinMax = 37;
-  else
-    xBinMax = 13;
+  if (region != 0) xBinMax = 37;
+  else xBinMax = 13;
 
   for (int x = 1; x < xBinMax; x++) {
     if (region != 0) {

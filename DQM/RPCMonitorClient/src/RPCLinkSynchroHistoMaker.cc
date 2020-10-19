@@ -2,11 +2,8 @@
 #include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
-#include <sstream>
 #include "TH1F.h"
 #include "TH2F.h"
-#include <algorithm>
-#include <iostream>
 
 struct OrderLbSpread {
   bool operator()(const std::pair<double, unsigned int>& lb1, const std::pair<double, unsigned int>& lb2) {
@@ -19,7 +16,8 @@ struct OrderLbOccup {
   }
 };
 
-void RPCLinkSynchroHistoMaker::fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTopOccup, TH2F* hTopSpread) const {
+void RPCLinkSynchroHistoMaker::fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTopOccup, TH2F* hTopSpread) const
+{
   hDelay->Reset();
   hDelaySpread->Reset();
   hTopOccup->Reset();
@@ -38,10 +36,8 @@ void RPCLinkSynchroHistoMaker::fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTop
 
     hDelaySpread->Fill(bc.second.mean() - 3., bc.second.rms());
 
-    if (sum == 0)
-      continue;
-    for (int i = 0; i <= 7; ++i)
-      hDelay->Fill(i - 3, bc.second.counts()[i]);
+    if (sum == 0) continue;
+    for (int i = 0; i <= 7; ++i) hDelay->Fill(i - 3, bc.second.counts()[i]);
 
     std::pair<unsigned int, unsigned int> canOccup = std::make_pair(sum, idx);
     std::pair<double, unsigned int> canSpread = std::make_pair(rms, idx);
@@ -67,6 +63,4 @@ void RPCLinkSynchroHistoMaker::fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTop
       hTopSpread->SetBinContent(icount + 1, itop + 1, float(spread.second.counts()[icount]));
     }
   }
-  //  for (int j=0; j<10; j++) { cout <<"topSpread["<<j<<"] = "<<topSpread[j].first<<endl; }
-  //  for (int j=0; j<10; j++) { cout <<"topOccup["<<j<<"] = "<<topOccup[j].first<<endl; }
 }

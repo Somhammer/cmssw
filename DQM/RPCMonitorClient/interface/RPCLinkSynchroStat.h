@@ -1,19 +1,17 @@
 #ifndef DQM_RPCMonitorClient_RPCLinkSynchroStat_H
 #define DQM_RPCMonitorClient_RPCLinkSynchroStat_H
 
-#include <map>
-#include <cmath>
-#include <vector>
 #include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
 #include "DataFormats/RPCDigi/interface/RPCRawSynchro.h"
+#include <cmath>
+#include <vector>
 
 class RPCReadOutMapping;
 
 class RPCLinkSynchroStat {
 public:
   RPCLinkSynchroStat(bool useFirstHitOnly);
-
-  virtual ~RPCLinkSynchroStat() {}
+  ~RPCLinkSynchroStat() = default;
 
   void init(const RPCReadOutMapping *theCabling, bool addChamberInfo);
 

@@ -1,22 +1,17 @@
 #ifndef RPCMonitorClient_RPCDCSSummary_H
 #define RPCMonitorClient_RPCDCSSummary_H
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
-#include <map>
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class RPCDCSSummary : public DQMEDHarvester {
+class RPCDCSSummary : public DQMEDHarvester
+{
 public:
-  /// Constructor
   RPCDCSSummary(const edm::ParameterSet &);
-
-  /// Destructor
-  ~RPCDCSSummary() override;
-
-  // Operations
+  ~RPCDCSSummary() override = default;
 
 protected:
-  void beginJob() override;
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
                              DQMStore::IGetter &,
                              edm::LuminosityBlock const &,
@@ -24,21 +19,16 @@ protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:
+  // Note: separate booker is needed to call this function at the dqmEndOfLumi(online) or dqmEndJob(offline)
   void myBooker(DQMStore::IBooker &);
   void checkDCSbit(edm::EventSetup const &);
 
-  bool init_;
-  double defaultValue_;
+  const int minFEDId_, maxFEDId_;
+  const int nDisks_;
+  const int isOfflineDQM_;
 
-  bool offlineDQM_;
-
-  MonitorElement *DCSMap_;
-  MonitorElement *totalDCSFraction;
-  MonitorElement *dcsWheelFractions[5];
-  MonitorElement *dcsDiskFractions[10];
-  std::pair<int, int> FEDRange_;
-  int numberOfDisks_;
-  int NumberOfFeds_;
+  bool isFilled_;
+  double fracDCS_;
 };
 
 #endif

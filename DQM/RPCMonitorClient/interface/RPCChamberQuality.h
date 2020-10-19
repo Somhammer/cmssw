@@ -7,13 +7,13 @@
 
 #include <string>
 
-class RPCChamberQuality : public DQMEDHarvester {
+class RPCChamberQuality : public DQMEDHarvester
+{
 public:
   RPCChamberQuality(const edm::ParameterSet &ps);
-  ~RPCChamberQuality() override;
+  ~RPCChamberQuality() override = default;
 
 protected:
-  void beginJob() override;
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
                              DQMStore::IGetter &,
                              edm::LuminosityBlock const &,

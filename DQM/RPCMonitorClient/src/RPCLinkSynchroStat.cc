@@ -15,107 +15,118 @@ bool RPCLinkSynchroStat::LessCountSum::operator()(const BoardAndCounts& o1, cons
   return o1.second.sum() < o2.second.sum();
 }
 
-void RPCLinkSynchroStat::add(const std::string& lbName, const unsigned int* hits) {
+void RPCLinkSynchroStat::add(const std::string& lbName, const unsigned int* hits)
+{
   LinkBoard lb(lbName);
   SynchroCounts counts(hits);
-  for (std::vector<BoardAndCounts>::iterator it = theLinkStatMap.begin(); it != theLinkStatMap.end(); ++it)
-    if (it->first == lb)
-      it->second += counts;
+  for (auto it = theLinkStatMap.begin(); it != theLinkStatMap.end(); ++it) {
+    if (it->first == lb) it->second += counts;
+  }
 }
 
-int RPCLinkSynchroStat::LinkBoard::add(const ChamberAndPartition& part) {
-  for (std::vector<ChamberAndPartition>::const_iterator it = theChamberAndPartitions.begin();
-       it != theChamberAndPartitions.end();
-       ++it) {
-    if ((*it) == part)
-      return 1;
+int RPCLinkSynchroStat::LinkBoard::add(const ChamberAndPartition& part)
+{
+  for (auto p : theChamberAndPartitions ) {
+    if ( p == part) return 1;
   }
   theChamberAndPartitions.push_back(part);
   return 0;
 }
 
-int RPCLinkSynchroStat::LinkBoard::add(const LinkBoardElectronicIndex& ele) {
-  for (std::vector<LinkBoardElectronicIndex>::const_iterator it = theElePaths.begin(); it != theElePaths.end(); ++it) {
-    if (it->dccId == ele.dccId && it->dccInputChannelNum == ele.dccInputChannelNum &&
-        it->tbLinkInputNum == ele.tbLinkInputNum && it->lbNumInLink == ele.lbNumInLink)
-      return 1;
+int RPCLinkSynchroStat::LinkBoard::add(const LinkBoardElectronicIndex& ele)
+{
+  for ( auto path : theElePaths ) {
+    if ( path.dccId == ele.dccId && 
+         path.dccInputChannelNum == ele.dccInputChannelNum &&
+         path.tbLinkInputNum == ele.tbLinkInputNum && 
+         path.lbNumInLink == ele.lbNumInLink ) return 1;
   }
   theElePaths.push_back(ele);
   return 0;
 }
 
-unsigned int RPCLinkSynchroStat::SynchroCounts::firstHit() const {
-  for (unsigned int i = 0; i < 8; ++i)
-    if (theCounts[i])
-      return i;
+unsigned int RPCLinkSynchroStat::SynchroCounts::firstHit() const
+{
+  for (unsigned int i = 0; i < 8; ++i) {
+    if (theCounts[i]) return i;
+  }
   return 8;
 }
 
-void RPCLinkSynchroStat::SynchroCounts::set(unsigned int bxDiff) {
-  if (bxDiff < 8)
-    theCounts[bxDiff] = 1;
+void RPCLinkSynchroStat::SynchroCounts::set(unsigned int bxDiff)
+{
+  if (bxDiff < 8) theCounts[bxDiff] = 1;
 }
 
 void RPCLinkSynchroStat::SynchroCounts::increment(unsigned int bxDiff) {
-  if (bxDiff < 8)
-    theCounts[bxDiff]++;
+  if (bxDiff < 8) ++theCounts[bxDiff];
 }
 
-RPCLinkSynchroStat::SynchroCounts& RPCLinkSynchroStat::SynchroCounts::operator+=(const SynchroCounts& rhs) {
-  for (unsigned int i = 0; i < 8; ++i)
+RPCLinkSynchroStat::SynchroCounts& RPCLinkSynchroStat::SynchroCounts::operator+=(const SynchroCounts& rhs)
+{
+  for (unsigned int i = 0; i < 8; ++i) {
     theCounts[i] += rhs.theCounts[i];
+  }
   return *this;
 }
 
-unsigned int RPCLinkSynchroStat::SynchroCounts::mom0() const {
+unsigned int RPCLinkSynchroStat::SynchroCounts::mom0() const
+{
   unsigned int result = 0;
-  for (unsigned int i = 0; i < 8; ++i)
+  for (unsigned int i = 0; i < 8; ++i) {
     result += theCounts[i];
+  }
   return result;
 }
 
 double RPCLinkSynchroStat::SynchroCounts::mom1() const {
   double result = 0.;
-  for (unsigned int i = 0; i < 8; ++i)
+  for (unsigned int i = 0; i < 8; ++i) {
     result += i * theCounts[i];
+  }
   return result;
 }
 
-double RPCLinkSynchroStat::SynchroCounts::mean() const {
+double RPCLinkSynchroStat::SynchroCounts::mean() const
+{
   unsigned int sum = mom0();
   return sum == 0 ? 0. : mom1() / sum;
 }
 
-double RPCLinkSynchroStat::SynchroCounts::rms() const {
+double RPCLinkSynchroStat::SynchroCounts::rms() const
+{
   double result = 0.;
-  int sum = mom0();
-  if (sum == 0)
-    return 0.;
-  double mean = mom1() / sum;
-  for (int i = 0; i < 8; ++i)
+  const int sum = mom0();
+  if (sum == 0) return 0.;
+  const double mean = mom1() / sum;
+  for (int i = 0; i < 8; ++i) {
     result += theCounts[i] * (mean - i) * (mean - i);
-  result /= sum;
-  return sqrt(result);
+  }
+  return sqrt(result/sum);
 }
 
-std::string RPCLinkSynchroStat::SynchroCounts::print() const {
+std::string RPCLinkSynchroStat::SynchroCounts::print() const
+{
   std::ostringstream str;
   str << " mean: " << std::setw(8) << mean();
   str << " rms: " << std::setw(8) << rms();
   str << " counts:";
-  for (int i = 0; i < 8; ++i)
+  for (int i = 0; i < 8; ++i) {
     str << " " << std::setw(4) << theCounts[i];
+  }
   return str.str();
 }
 
-bool RPCLinkSynchroStat::SynchroCounts::operator==(const SynchroCounts& o) const {
-  for (unsigned int idx = 0; idx < 8; ++idx)
-    if (theCounts[idx] != o.theCounts[idx])
-      return false;
+bool RPCLinkSynchroStat::SynchroCounts::operator==(const SynchroCounts& o) const
+{
+  for (unsigned int idx = 0; idx < 8; ++idx) {
+    if (theCounts[idx] != o.theCounts[idx]) return false;
+  }
   return true;
 }
 
-RPCLinkSynchroStat::RPCLinkSynchroStat(bool useFirstFitOnly) : theUseFirstHitOnly(useFirstFitOnly) {
+RPCLinkSynchroStat::RPCLinkSynchroStat(bool useFirstFitOnly) : theUseFirstHitOnly(useFirstFitOnly) 
+{
   for (unsigned int i1 = 0; i1 <= MAXDCCINDEX; ++i1) {
     for (unsigned int i2 = 0; i2 <= MAXRBCINDEX; i2++) {
       for (unsigned int i3 = 0; i3 <= MAXLINKINDEX; ++i3) {
@@ -128,9 +139,10 @@ RPCLinkSynchroStat::RPCLinkSynchroStat(bool useFirstFitOnly) : theUseFirstHitOnl
   theLinkStatMap.push_back(std::make_pair(LinkBoard("Dummy"), SynchroCounts()));
 }
 
-void RPCLinkSynchroStat::init(const RPCReadOutMapping* theCabling, bool addChamberInfo) {
-  if (!theCabling)
-    return;
+void RPCLinkSynchroStat::init(const RPCReadOutMapping* theCabling, bool addChamberInfo)
+{
+  if (!theCabling) return;
+
   std::vector<const DccSpec*> dccs = theCabling->dccList();
   for (std::vector<const DccSpec*>::const_iterator it1 = dccs.begin(); it1 != dccs.end(); ++it1) {
     const std::vector<TriggerBoardSpec>& rmbs = (*it1)->triggerBoards();
@@ -245,10 +257,8 @@ std::string RPCLinkSynchroStat::dumpDelays() {
       str << im->first << "(";
       for (std::vector<std::string>::const_iterator ip = im->second.begin(); ip != im->second.end(); ++ip) {
         str << *ip;
-        if ((ip + 1) != (im->second.end()))
-          str << ",";
-        else
-          str << ")";
+        if ((ip + 1) != (im->second.end())) str << ",";
+        else str << ")";
       }
     }
 

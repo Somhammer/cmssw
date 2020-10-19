@@ -4,7 +4,8 @@
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-class RPCClusterSizeTest : public RPCClient {
+class RPCClusterSizeTest : public RPCClient
+{
 public:
   /// Constructor
   RPCClusterSizeTest(const edm::ParameterSet &ps);
