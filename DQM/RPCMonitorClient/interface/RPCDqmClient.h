@@ -9,10 +9,11 @@
 #include <string>
 #include <vector>
 
-class RPCDqmClient : public DQMEDHarvester {
+class RPCDqmClient : public DQMEDHarvester
+{
 public:
-  RPCDqmClient(const edm::ParameterSet &ps);
-  ~RPCDqmClient() override;
+  RPCDqmClient(const edm::ParameterSet &pset);
+  ~RPCDqmClient() override = default;
 
 protected:
   void beginJob() override;
@@ -22,7 +23,7 @@ protected:
                              edm::EventSetup const &) override;       //performed in the endLumi
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
-  void makeClientMap(const edm::ParameterSet &parameters_);
+  void makeClientMap(const edm::ParameterSet &pset);
   void getMonitorElements(DQMStore::IGetter &);
   void getRPCdetId(const edm::EventSetup &);
 
@@ -38,7 +39,7 @@ private:
   MonitorElement *RPCEvents_;
   std::vector<RPCDetId> myDetIds_;
   std::vector<std::string> clientNames_, clientHisto_;
-  std::vector<RPCClient *> clientModules_;
+  std::vector<std::unique_ptr<RPCClient>> clientModules_;
 
   std::vector<int> clientTag_;
 };
