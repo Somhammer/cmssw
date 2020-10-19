@@ -11,6 +11,8 @@ struct RPCHistoHelper
   static void decorateAxisBarrelRoll(TH1* h, const std::string prefix, const int wheel);
   static void decorateAxisEndcapRoll(TH1* h, const std::string prefix, const int disk);
   static std::pair<int, int> findBinRoll(const RPCDetId* detId);
+
+  static std::string joinStrInt(const std::string prefix, const int i, const std::string suffix="");
 };
 
 #endif

@@ -1,5 +1,6 @@
 /*  \author Anna Cimmino*/
 #include "DQM/RPCMonitorDigi/interface/RPCFEDIntegrity.h"
+#include "DQM/RPCMonitorDigi/interface/RPCHistoHelper.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -22,13 +23,12 @@ void RPCFEDIntegrity::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   hFatal_ = ibooker.book1D("FEDFatal", "FED Fatal Errors", numOfFED_, minFEDNum_, maxFEDNum_ + 1);
   hNonFatal_ = ibooker.book1D("FEDNonFatal", "FED NON Fatal Errors", numOfFED_, minFEDNum_, maxFEDNum_ + 1);
 
-  char buffer[5];
   for ( int fed=minFEDNum_; fed<=maxFEDNum_; ++fed ) {
-    snprintf(buffer, 5, "%3d", fed);
+    const std::string label = RPCHistoHelper::joinStrInt("FED ", fed);
 
-    hEntries_ ->setBinLabel(fed-minFEDNum_+1, buffer, 1);
-    hFatal_   ->setBinLabel(fed-minFEDNum_+1, buffer, 1);
-    hNonFatal_->setBinLabel(fed-minFEDNum_+1, buffer, 1);
+    hEntries_ ->setBinLabel(fed-minFEDNum_+1, label, 1);
+    hFatal_   ->setBinLabel(fed-minFEDNum_+1, label, 1);
+    hNonFatal_->setBinLabel(fed-minFEDNum_+1, label, 1);
   }
 
 }

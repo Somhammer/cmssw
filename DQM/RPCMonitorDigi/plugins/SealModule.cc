@@ -11,3 +11,5 @@ DEFINE_FWK_MODULE(RPCFEDIntegrity);
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorRaw.h"
 DEFINE_FWK_MODULE(RPCMonitorRaw);
 
+#include "DQM/RPCMonitorDigi/interface/RPCMonitorRecoMuon.h"
+DEFINE_FWK_MODULE(RPCMonitorRecoMuon);

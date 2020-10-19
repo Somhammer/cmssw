@@ -1,4 +1,5 @@
 #include "DQM/RPCMonitorDigi/interface/RPCRollNameHelper.h"
+#include <sstream>
 
 std::string RPCRollNameHelper::rollName(const RPCDetId* detId)
 {

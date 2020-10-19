@@ -1,4 +1,4 @@
-#include <DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h>
+#include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 #include <DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>

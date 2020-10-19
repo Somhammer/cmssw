@@ -1,6 +1,13 @@
 #include "DQM/RPCMonitorDigi/interface/RPCHistoHelper.h"
 #include <iostream>
 
+std::string RPCHistoHelper::joinStrInt(const std::string prefix, const int i, const std::string suffix)
+{
+  std::stringstream ss;
+  ss << prefix << i << suffix;
+  return ss.str();
+}
+
 std::string RPCHistoHelper::suggestPath(const RPCDetId* detId)
 {
   const static int n = 100;
