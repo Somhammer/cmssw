@@ -13,8 +13,8 @@
 #include <memory>
 
 RPCMonitorLinkSynchro::RPCMonitorLinkSynchro(const edm::ParameterSet& cfg):
-  theConfig(cfg),
-  theSynchroStat(RPCLinkSynchroStat(theConfig.getUntrackedParameter<bool>("useFirstHitOnly", false)))
+  dumpDelays_(cfg.getUntrackedParameter<bool>("dumpDelays")),
+  theSynchroStat(RPCLinkSynchroStat(cfg.getUntrackedParameter<bool>("useFirstHitOnly", false)))
 {
   rpcRawSynchroProdItemTag_ =
       consumes<RPCRawSynchro::ProdItem>(cfg.getParameter<edm::InputTag>("rpcRawSynchroProdItemTag"));
@@ -34,7 +34,7 @@ void RPCMonitorLinkSynchro::dqmBeginRun(const edm::Run& r, const edm::EventSetup
     std::unique_ptr<RPCReadOutMapping const> cabling{readoutMapping->convert()};
     edm::LogInfo("RPCMonitorLinkSynchro")
         << "RPCMonitorLinkSynchro - record has CHANGED!!, read map, VERSION: " << cabling->version();
-    theSynchroStat.init(cabling.get(), theConfig.getUntrackedParameter<bool>("dumpDelays"));
+    theSynchroStat.init(cabling.get(), dumpDelays_);
   }
 }
 
@@ -73,11 +73,12 @@ void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup&
 {
   edm::Handle<RPCRawSynchro::ProdItem> synchroCounts;
   ev.getByToken(rpcRawSynchroProdItemTag_, synchroCounts);
+
   std::vector<LinkBoardElectronicIndex> problems;
   const RPCRawSynchro::ProdItem& vItem = select(*synchroCounts.product(), ev, es);
   theSynchroStat.add(vItem, problems);
 
-  for (std::vector<LinkBoardElectronicIndex>::const_iterator it = problems.begin(); it != problems.end(); ++it) {
-    me_notComplete[it->dccId - 790]->Fill(it->dccInputChannelNum, it->tbLinkInputNum);
+  for ( auto prob : problems ) {
+    me_notComplete[prob.dccId - 790]->Fill(prob.dccInputChannelNum, prob.tbLinkInputNum);
   }
 }

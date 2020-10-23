@@ -30,9 +30,9 @@ public:
   };
 
 protected:
-  edm::ParameterSet theConfig;
-  edm::ESWatcher<RPCEMapRcd> theCablingWatcher;
+  const bool dumpDelays_;
   RPCLinkSynchroStat theSynchroStat;
+  edm::ESWatcher<RPCEMapRcd> theCablingWatcher;
 
   MonitorElement* me_delaySummary;
   MonitorElement* me_delaySpread;
