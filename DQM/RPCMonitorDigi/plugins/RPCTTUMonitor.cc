@@ -4,13 +4,13 @@
 
 RPCTTUMonitor::RPCTTUMonitor(const edm::ParameterSet& iConfig):
   ttuFolder_(iConfig.getUntrackedParameter<std::string>("TTUFolder", "RPC/TTU")),
-  m_ttBits_(iConfig.getParameter<std::vector<unsigned> >("BitNumbers"))
+  ttBits_(iConfig.getParameter<std::vector<unsigned> >("BitNumbers")),
+  maxttBits_(ttBits_.size())
 {
   m_gtReadoutLabel = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getParameter<edm::InputTag>("GTReadoutRcd"));
   m_gmtReadoutLabel = consumes<L1MuGMTReadoutCollection>(iConfig.getParameter<edm::InputTag>("GMTReadoutRcd"));
   m_rpcTechTrigEmu = consumes<L1GtTechnicalTriggerRecord>(iConfig.getParameter<edm::InputTag>("L1TTEmuBitsLabel"));
 
-  m_maxttBits = m_ttBits_.size();
 }
 
 // ------------ method called to for each event  ------------
@@ -33,12 +33,18 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&)
   }
 
   //Timing difference between RPC-PAT and DT
-  const int dGMT = discriminateGMT(iEvent);
-  if (dGMT < 0) return;
+  // get GMT readout collection
+  edm::Handle<L1MuGMTReadoutCollection> gmtReadoutHandle;
+  iEvent.getByToken(m_gmtReadoutLabel, gmtReadoutHandle);
+  if (!gmtReadoutHandle.isValid()) {
+    edm::LogError("RPCTTUMonitor") << "can't find L1MuGMTReadoutCollection with label \n";
+    return;
+  }
+  const std::bitset<2> gmtBits = discriminateGMT(gmtReadoutHandle.product(), m_GMTcandidatesBx, m_DTcandidatesBx);
 
   const int bxX = iEvent.bunchCrossing();  // ... 1 to 3564
 
-  for (int k = 0; k < m_maxttBits; ++k) {
+  for (int k = 0; k < maxttBits_; ++k) {
     std::map<int, bool> ttuDec;
     for (int iebx = 0; iebx <= 2; iebx++) {
       const TechnicalTriggerWord gtTTWord = gtRecord->technicalTriggerWord(iebx - 1);
@@ -46,7 +52,7 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&)
     }
 
     //. RPC
-    if (m_rpcTrigger) {
+    if (gmtBits[0]) {
       const int bx1 = (bxX - m_GMTcandidatesBx[0]);
       for ( auto dec : ttuDec ) {
         if (!dec.second) continue;
@@ -57,7 +63,7 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&)
     }
 
     //.. DT
-    if (m_dtTrigger) {
+    if (gmtBits[1]) {
       const int bx1 = (bxX - m_DTcandidatesBx[0]);
       for (auto dec : ttuDec ) {
         if (!dec.second) continue;
@@ -76,8 +82,9 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&)
   const std::vector<L1GtTechnicalTrigger> ttVec = emuTTRecord->gtTechnicalTrigger();
   if (ttVec.empty()) return;
 
-  int k = 0;
-  for (auto bits : m_ttBits_ ) {
+  for ( int k=0; k<maxttBits_; ++k ) {
+    const int bits = ttBits_[k];
+
     const bool hasDataTrigger = gtTTWord.at(bits);
     m_ttBitsDecisionData->Fill(bits, (int)hasDataTrigger);
 
@@ -85,62 +92,32 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&)
     m_ttBitsDecisionEmulator->Fill(ttVec[k].gtTechnicalTriggerBitNumber(), (int)hasEmulatorTrigger);
 
     fillDiscriminateDecision(hasDataTrigger, hasEmulatorTrigger, k);
-
-    ++k;
   }
 }
 
-int RPCTTUMonitor::discriminateGMT(const edm::Event& iEvent)
+std::bitset<2> RPCTTUMonitor::discriminateGMT(const L1MuGMTReadoutCollection* gmtRC,
+                                              std::vector<int>& gmtCandsBx, std::vector<int>& dtCandsBx) const
 {
-  edm::Handle<L1MuGMTReadoutCollection> pCollection;
-  iEvent.getByToken(m_gmtReadoutLabel, pCollection);
+  std::bitset<2> bits; // default is {false, false}
 
-  if (!pCollection.isValid()) {
-    edm::LogError("discriminateGMT") << "can't find L1MuGMTReadoutCollection with label \n";
-    return -1;
-  }
-
-  // get GMT readout collection
-  const L1MuGMTReadoutCollection* gmtRC = pCollection.product();
-
-  bool rpcBar_l1a = false;
-  bool dtBar_l1a = false;
   for ( auto gmtRecord : gmtRC->getRecords() ) {
     const int bxInEvent = gmtRecord.getBxInEvent();
     const int bxInEventNew = gmtRecord.getBxNr();
 
-    int nrpcB = 0;
     for ( auto l1Cands : gmtRecord.getBrlRPCCands() ) {
       if ( l1Cands.empty() ) continue;
-      m_GMTcandidatesBx.push_back(bxInEventNew);
-      ++nrpcB;
+      gmtCandsBx.push_back(bxInEventNew);
+      if (bxInEvent == 0) bits[0] = true;
     }
-    if (bxInEvent == 0 && nrpcB > 0) rpcBar_l1a = true;
 
-    int ndtB = 0;
     for ( auto l1Cands : gmtRecord.getDTBXCands() ) {
       if ( l1Cands.empty() ) continue;
-      m_DTcandidatesBx.push_back(bxInEventNew);
-      ++ndtB;
+      dtCandsBx.push_back(bxInEventNew);
+      if (bxInEvent == 0) bits[1] = true;
     }
-    if (bxInEvent == 0 && ndtB > 0) dtBar_l1a = true;
   }
 
-  m_dtTrigger = false;
-  m_rpcTrigger = false;
-
-  int gmtDec = 0;
-  if (rpcBar_l1a) {
-    gmtDec = 1;
-    m_rpcTrigger = true;
-  }
-
-  if (dtBar_l1a) {
-    gmtDec = 2;
-    m_dtTrigger = true;
-  }
-
-  return gmtDec;
+  return bits;
 }
 
 void RPCTTUMonitor::fillDiscriminateDecision(bool dataDec, bool emulDec, int indx)
@@ -158,8 +135,8 @@ void RPCTTUMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& r
   m_ttBitsDecisionData = ibooker.book1D("TechTrigger.Bits.Data", "Technical Trigger bits : Summary", 10, 23, 33);
   m_ttBitsDecisionEmulator = ibooker.book1D("TechTrigger.Bits.Emulator", "Technical Trigger bits : Summary", 10, 23, 33);
 
-  for (unsigned k=0; k<m_ttBits_.size(); ++k) {
-    const int ttBit = m_ttBits_[k];
+  for (int k=0; k<maxttBits_; ++k) {
+    const int ttBit = ttBits_[k];
 
     m_bxDistDiffPac[k] = ibooker.book1D(RPCHistoHelper::joinStrInt("BX.diff.PAC-TTU.bit.", ttBit),
                                         "Timing difference between PAC and TTU", 7, -3, 3);

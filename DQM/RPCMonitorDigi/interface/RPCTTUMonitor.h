@@ -16,13 +16,16 @@
 #include <DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTrigger.h>
 #include <DataFormats/L1GlobalTrigger/interface/L1GtTechnicalTriggerRecord.h>
 
+#include <bitset>
+
 class RPCTTUMonitor : public DQMEDAnalyzer
 {
 public:
   explicit RPCTTUMonitor(const edm::ParameterSet &);
   ~RPCTTUMonitor() override = default;
 
-  int discriminateGMT(const edm::Event &iEvent);
+  std::bitset<2> discriminateGMT(const L1MuGMTReadoutCollection* gmtRC,
+                                 std::vector<int>& gmtCandsBx, std::vector<int>& dtCandsBx) const;
   void fillDiscriminateDecision(bool dataDec, bool emulDec, int indx);
 
 protected:
@@ -31,7 +34,8 @@ protected:
 
 private:
   const std::string ttuFolder_;
-  const std::vector<unsigned> m_ttBits_;
+  const std::vector<unsigned> ttBits_;
+  const int maxttBits_;
 
   MonitorElement *m_ttBitsDecisionData;
   MonitorElement *m_ttBitsDecisionEmulator;
@@ -39,14 +43,8 @@ private:
   MonitorElement *m_bxDistDiffDt[8];
   MonitorElement *m_dataVsemulator[8];
 
-  int m_maxttBits;
-
-  bool m_dtTrigger;
-  bool m_rpcTrigger;
-
   std::vector<int> m_GMTcandidatesBx;
   std::vector<int> m_DTcandidatesBx;
-  std::vector<int> m_RPCcandidatesBx;
 
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutLabel;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> m_gmtReadoutLabel;
