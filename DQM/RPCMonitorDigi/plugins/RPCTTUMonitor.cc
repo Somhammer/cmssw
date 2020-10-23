@@ -40,8 +40,8 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&)
     edm::LogError("RPCTTUMonitor") << "can't find L1MuGMTReadoutCollection with label \n";
     return;
   }
-  const std::bitset<2> gmtBits = discriminateGMT(gmtReadoutHandle.product(), m_GMTcandidatesBx, m_DTcandidatesBx);
-
+  std::vector<int> candsBxGMT, candsBxDT;
+  const std::bitset<2> gmtBits = discriminateGMT(gmtReadoutHandle.product(), candsBxGMT, candsBxDT);
   const int bxX = iEvent.bunchCrossing();  // ... 1 to 3564
 
   for (int k = 0; k < maxttBits_; ++k) {
@@ -53,7 +53,7 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&)
 
     //. RPC
     if (gmtBits[0]) {
-      const int bx1 = (bxX - m_GMTcandidatesBx[0]);
+      const int bx1 = (bxX - candsBxGMT[0]);
       for ( auto dec : ttuDec ) {
         if (!dec.second) continue;
         const int bx2 = dec.first;
@@ -64,7 +64,7 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&)
 
     //.. DT
     if (gmtBits[1]) {
-      const int bx1 = (bxX - m_DTcandidatesBx[0]);
+      const int bx1 = (bxX - candsBxDT[0]);
       for (auto dec : ttuDec ) {
         if (!dec.second) continue;
         const int bx2 = dec.first;
@@ -73,9 +73,6 @@ void RPCTTUMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup&)
       }
     }
   }
-
-  m_GMTcandidatesBx.clear();
-  m_DTcandidatesBx.clear();
 
   //... For Data Emulator comparison
   const TechnicalTriggerWord gtTTWord = gtRecord->technicalTriggerWord();

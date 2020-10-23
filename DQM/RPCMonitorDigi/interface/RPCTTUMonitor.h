@@ -43,9 +43,6 @@ private:
   MonitorElement *m_bxDistDiffDt[8];
   MonitorElement *m_dataVsemulator[8];
 
-  std::vector<int> m_GMTcandidatesBx;
-  std::vector<int> m_DTcandidatesBx;
-
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_gtReadoutLabel;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> m_gmtReadoutLabel;
   edm::EDGetTokenT<L1GtTechnicalTriggerRecord> m_rpcTechTrigEmu;
