@@ -1,10 +1,7 @@
-#include <memory>
+#include "DQM/RPCMonitorDigi/interface/RPCMonitorLinkSynchro.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroHistoMaker.h"
 
-#include "DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h"
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroHistoMaker.h"
-
-#include "DQMServices/Core/interface/DQMStore.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -13,23 +10,24 @@
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 
-RPCMonitorLinkSynchro::RPCMonitorLinkSynchro(const edm::ParameterSet& cfg)
-    : theConfig(cfg),
-      theSynchroStat(RPCLinkSynchroStat(theConfig.getUntrackedParameter<bool>("useFirstHitOnly", false)))
+#include <memory>
 
+RPCMonitorLinkSynchro::RPCMonitorLinkSynchro(const edm::ParameterSet& cfg):
+  theConfig(cfg),
+  theSynchroStat(RPCLinkSynchroStat(theConfig.getUntrackedParameter<bool>("useFirstHitOnly", false)))
 {
   rpcRawSynchroProdItemTag_ =
       consumes<RPCRawSynchro::ProdItem>(cfg.getParameter<edm::InputTag>("rpcRawSynchroProdItemTag"));
 }
 
-RPCMonitorLinkSynchro::~RPCMonitorLinkSynchro() {}
-
-void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
+void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es)
+{
   RPCLinkSynchroHistoMaker hm(theSynchroStat);
   hm.fill(me_delaySummary->getTH1F(), me_delaySpread->getTH2F(), me_topOccup->getTH2F(), me_topSpread->getTH2F());
 }
 
-void RPCMonitorLinkSynchro::dqmBeginRun(const edm::Run& r, const edm::EventSetup& es) {
+void RPCMonitorLinkSynchro::dqmBeginRun(const edm::Run& r, const edm::EventSetup& es)
+{
   if (theCablingWatcher.check(es)) {
     edm::ESTransientHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
@@ -42,9 +40,10 @@ void RPCMonitorLinkSynchro::dqmBeginRun(const edm::Run& r, const edm::EventSetup
 
 void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::Run const& iRun,
-                                           edm::EventSetup const& es) {
+                                           edm::EventSetup const& es)
+{
   ibooker.cd();
-  ibooker.setCurrentFolder("RPC/LinkMonitor/");
+  ibooker.setCurrentFolder("RPC/LinkMonitor");
 
   me_delaySummary = ibooker.book1D("delaySummary", "LinkDelaySummary", 8, -3.5, 4.5);
   me_delaySummary->getTH1F()->SetStats(true);
@@ -70,7 +69,8 @@ void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker& ibooker,
   me_topSpread->getTH2F()->SetStats(false);
 }
 
-void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup& es) {
+void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup& es)
+{
   edm::Handle<RPCRawSynchro::ProdItem> synchroCounts;
   ev.getByToken(rpcRawSynchroProdItemTag_, synchroCounts);
   std::vector<LinkBoardElectronicIndex> problems;

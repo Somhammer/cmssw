@@ -1,10 +1,10 @@
-#ifndef DQM_RPCMonitorClient_RPCLinkSynchroHistoMaker_H
-#define DQM_RPCMonitorClient_RPCLinkSynchroHistoMaker_H
+#ifndef DQM_RPCMonitorDigi_RPCLinkSynchroHistoMaker_H
+#define DQM_RPCMonitorDigi_RPCLinkSynchroHistoMaker_H
 
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
+#include "DQM/RPCMonitorDigi/interface/RPCLinkSynchroStat.h"
+#include <TH1F.h>
+#include <TH2F.h>
 
-class TH1F;
-class TH2F;
 class RPCReadOutMapping;
 
 class RPCLinkSynchroHistoMaker

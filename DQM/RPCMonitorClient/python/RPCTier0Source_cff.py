@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQM.RPCMonitorDigi.RPCDigiMonitoring_cfi import rpcdigidqm
 rpcdigidqm.UseMuon =  cms.untracked.bool(True)
 
-from DQM.RPCMonitorClient.RPCFEDIntegrity_cfi import rpcFEDIntegrity
+from DQM.RPCMonitorDigi.RPCFEDIntegrity_cfi import rpcFEDIntegrity
 from DQM.RPCMonitorDigi.rpcMonitorRecoMuon_cfi import rpcMonitorRecoMuon
 
 # DQM Services

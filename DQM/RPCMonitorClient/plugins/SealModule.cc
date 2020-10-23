@@ -1,9 +1,6 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h>
-DEFINE_FWK_MODULE(RPCMonitorLinkSynchro);
-
 //General Client
 #include <DQM/RPCMonitorClient/interface/RPCDqmClient.h>
 DEFINE_FWK_MODULE(RPCDqmClient);
