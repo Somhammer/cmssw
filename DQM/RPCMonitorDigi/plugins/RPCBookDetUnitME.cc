@@ -3,8 +3,7 @@
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include "DQM/RPCMonitorDigi/interface/RPCHistoHelper.h"
-#include "DQM/RPCMonitorDigi/interface/utils.h"
-#include <iomanip>
+#include "DQM/RPCMonitorDigi/interface/RPCRollNameHelper.h"
 
 void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
                                 const RPCDetId& detId,
@@ -18,19 +17,9 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
 
   //get number of strips in current roll
   int nstrips = this->stripsInRoll(detId, rpcGeo);
-  if (nstrips == 0) {
-    nstrips = 1;
-  }
+  if (nstrips == 0) nstrips = 1;
 
-  /// Name components common to current RPCDetId
-  RPCGeomServ RPCname(detId);
-  std::string nameRoll = "";
-
-  if (RPCMonitorDigi::useRollInfo_) {
-    nameRoll = RPCname.name();
-  } else {
-    nameRoll = RPCname.chambername();
-
+  if (!RPCMonitorDigi::useRollInfo_) {
     if (detId.region() != 0 ||                                                     //Endcaps
         (abs(detId.ring()) == 2 && detId.station() == 2 && detId.layer() != 1) ||  //Wheel -/+2 RB2out
         (abs(detId.ring()) != 2 && detId.station() == 2 && detId.layer() == 1)) {
@@ -41,37 +30,28 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
     }
   }
 
-  std::stringstream os;
-  os.str("");
-  os << "Occupancy_" << nameRoll;
-  meMap[os.str()] = ibooker.book1D(os.str(), os.str(), nstrips, 0.5, nstrips + 0.5);
+  const std::string nameRoll = RPCMonitorDigi::useRollInfo_ ? RPCRollNameHelper::rollName(&detId) : RPCRollNameHelper::chamberName(&detId);
+  std::string meName;
+  meName = "Occupancy_"+nameRoll;
+  meMap[meName] = ibooker.book1D(meName, meName, nstrips, 0.5, nstrips + 0.5);
 
-  os.str("");
-  os << "BXDistribution_" << nameRoll;
-  meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 7, -3.5, 3.5);
+  meName = "BXDistribution_"+nameRoll;
+  meMap[meName] = ibooker.book1D(meName, meName, 7, -3.5, 3.5);
 
   if (detId.region() == 0) {
-    os.str("");
-    os << "ClusterSize_" << nameRoll;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 15, 0.5, 15.5);
-
-    os.str("");
-    os << "Multiplicity_" << nameRoll;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 30, 0.5, 30.5);
-
+    meName = "ClusterSize_"+nameRoll;
+    meMap[meName] = ibooker.book1D(meName, meName, 15, 0.5, 15.5);
+    meName = "Multiplicity_"+nameRoll;
+    meMap[meName] = ibooker.book1D(meName, meName, 30, 0.5, 30.5);
   } else {
-    os.str("");
-    os << "ClusterSize_" << nameRoll;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 10, 0.5, 10.5);
-
-    os.str("");
-    os << "Multiplicity_" << nameRoll;
-    meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 15, 0.5, 15.5);
+    meName = "ClusterSize_"+nameRoll;
+    meMap[meName] = ibooker.book1D(meName, meName, 10, 0.5, 10.5);
+    meName = "Multiplicity_"+nameRoll;
+    meMap[meName] = ibooker.book1D(meName, meName, 15, 0.5, 15.5);
   }
 
-  os.str("");
-  os << "NumberOfClusters_" << nameRoll;
-  meMap[os.str()] = ibooker.book1D(os.str(), os.str(), 10, 0.5, 10.5);
+  meName = "NumberOfClusters_"+nameRoll;
+  meMap[meName] = ibooker.book1D(meName, meName, 10, 0.5, 10.5);
 }
 
 void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
@@ -96,9 +76,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
         meMap[os.str()] = ibooker.book2D(os.str(), os.str(), 91, 0.5, 91.5, 17, 0.5, 17.5);
 
       meMap[os.str()]->setAxisTitle("strip", 1);
-      rpcdqm::utils rpcUtils;
-      rpcUtils.labelYAxisRoll(meMap[os.str()], 0, wheel, true);
-      //RPCHistoHelper::decorateAxisBarrelRoll(meMap[os.str()]->getTH1(), "Occupancy", wheel);
+      RPCHistoHelper::decorateAxisBarrelRoll(meMap[os.str()]->getTH1(), "Occupancy", wheel);
     }
   }
 
