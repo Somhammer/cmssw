@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from DQM.RPCMonitorDigi.RPCDigiMonitoring_cfi import rpcdigidqm
 rpcdigidqm.UseMuon =  cms.untracked.bool(True)
 
+from DQM.RPCMonitorDigi.rpcMonitorRecHits_cfi import rpcRecHitsDQM
+
 from DQM.RPCMonitorDigi.RPCFEDIntegrity_cfi import rpcFEDIntegrity
 from DQM.RPCMonitorDigi.rpcMonitorRecoMuon_cfi import rpcMonitorRecoMuon
 
@@ -14,6 +16,7 @@ rpcEventInfo = DQMEDAnalyzer('DQMEventInfo',
 
 rpcTier0Source = cms.Sequence(
     rpcdigidqm
+  * rpcRecHitsDQM
   * rpcMonitorRecoMuon
   * rpcEventInfo
   * rpcFEDIntegrity

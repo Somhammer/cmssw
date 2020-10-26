@@ -4,6 +4,9 @@
 #include "DQM/RPCMonitorDigi/interface/RPCMonitorDigi.h"
 DEFINE_FWK_MODULE(RPCMonitorDigi);
 
+#include "DQM/RPCMonitorDigi/interface/RPCMonitorRecHits.h"
+DEFINE_FWK_MODULE(RPCMonitorRecHits);
+
 #include "DQM/RPCMonitorDigi/interface/RPCTTUMonitor.h"
 DEFINE_FWK_MODULE(RPCTTUMonitor);
 

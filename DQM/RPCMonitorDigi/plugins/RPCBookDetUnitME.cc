@@ -30,7 +30,7 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
     }
   }
 
-  const std::string nameRoll = RPCMonitorDigi::useRollInfo_ ? RPCRollNameHelper::rollName(&detId) : RPCRollNameHelper::chamberName(&detId);
+  const std::string nameRoll = RPCMonitorDigi::useRollInfo_ ? RPCRollNameHelper::rollName(detId) : RPCRollNameHelper::chamberName(detId);
   std::string meName;
   meName = "Occupancy_"+nameRoll;
   meMap[meName] = ibooker.book1D(meName, meName, nstrips, 0.5, nstrips + 0.5);

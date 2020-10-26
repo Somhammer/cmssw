@@ -6,8 +6,8 @@
 
 struct RPCRollNameHelper
 {
-  static std::string rollName(const RPCDetId* detId);
-  static std::string chamberName(const RPCDetId* detId);
+  static std::string rollName(const RPCDetId& detId);
+  static std::string chamberName(const RPCDetId& detId);
 
 };
 #endif
