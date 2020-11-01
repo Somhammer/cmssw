@@ -45,7 +45,6 @@ process.rpcEventSummary.EventInfoPath = 'RPC/EventInfo'
 process.rpcEventSummary.PrescaleFactor = 1
 
 process.load("DQM.RPCMonitorClient.RPCDCSSummary_cfi")
-process.load("DQM.RPCMonitorClient.RPCDaqInfo_cfi")
 
 ################# DQM Digi Module ######################
 process.load("DQM.RPCMonitorDigi.RPCDigiMonitoring_cfi")
@@ -111,7 +110,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 #process.rpcClientSequence = cms.Sequence(process.dqmEnv*process.readMeFromFile*process.qTesterRPC*process.rpcdqmclient*process.rpcOccupancyTest*process.rpcNoise*process.rpcChamberQuality*process.rpcEventSummary*process.dqmSaver)
 
 
-process.p = cms.Path(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse*process.rpcMonitorRaw*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcDaqInfo*process.rpcFEDIntegrity*process.dqmSaver)
+process.p = cms.Path(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.rpcAfterPulse*process.rpcMonitorRaw*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.rpcFEDIntegrity*process.dqmSaver)
 
 
 #process.p = cms.Path(process.rpcunpacker*process.rpcRecHits*process.rpcdigidqm*process.dqmSaver)
