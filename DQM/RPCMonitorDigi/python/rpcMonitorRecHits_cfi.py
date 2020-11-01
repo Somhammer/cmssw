@@ -11,13 +11,13 @@ rpcRecHitsDQM = DQMEDAnalyzer('RPCMonitorRecHits',
 
     setAxisLabel = cms.untracked.bool(True),
     binLabelsR = cms.PSet(
-        RE12 = cms.untracked.vstring("", "A", "Ring1 B", "C", "", "A", "Ring2 B", "C", ""),
-        RE34 = cms.untracked.vstring("", "A", "Ring1 B", "C", "", "A", "Ring2 B", "C", ""),
+        RE12 = cms.untracked.vstring("", "C", "Ring2 B", "A", "", "C", "Ring3 B", "A", ""),
+        RE34 = cms.untracked.vstring("", "C", "Ring2 B", "A", "", "C", "Ring3 B", "A", ""),
     ),
     binLabelsZ = cms.PSet(
-        RB = cms.untracked.vstring([x for x in " BF BF BF BF BF "]),
-        RB2out = cms.untracked.vstring([x for x in " BMF BF BF BF BMF "]),
-        RB2in = cms.untracked.vstring([x for x in " BF BMF BMF BMF BF "]),
+        RB = cms.untracked.vstring([x for x in " FB FB FB BF BF "]),
+        RB2out = cms.untracked.vstring([x for x in " FMB FB FB BF BMF "]),
+        RB2in = cms.untracked.vstring([x for x in " FB FMB FMB BMF BF "]),
     ),
     binLabelsPhi = cms.PSet(
         RB = cms.untracked.vstring(
@@ -37,6 +37,21 @@ rpcRecHitsDQM = DQMEDAnalyzer('RPCMonitorRecHits',
             "", "S11",
             "", "S12-","S12+",
         ),
+        RE = cms.untracked.vstring(
+            "",
+            #"CH01", "CH02", "CH03", "", "CH04", "CH05", "CH06", "",
+            #"CH07", "CH08", "CH09", "", "CH10", "CH11", "CH12", "",
+            #"CH13", "CH14", "CH15", "", "CH16", "CH17", "CH18", "",
+            #"CH19", "CH20", "CH21", "", "CH22", "CH23", "CH24", "",
+            #"CH25", "CH26", "CH27", "", "CH28", "CH29", "CH30", "",
+            #"CH31", "CH32", "CH33", "", "CH34", "CH35", "CH36",
+            "CH01", "", "", "", "CH04", "", "", "",
+            "CH07", "", "", "", "CH10", "", "", "",
+            "CH13", "", "", "", "CH16", "", "", "",
+            "CH19", "", "", "", "CH22", "", "", "",
+            "CH25", "", "", "", "CH28", "", "", "",
+            "CH31", "", "", "", "CH34", "", "",
+        ),
     ),
     binEdgesZ = cms.PSet(
         RB1in  = cms.untracked.vdouble(-700, -655,-530,-410, -390,-264,-145, -120,5,120, 145,264,390, 410,530,655, 700),
@@ -47,10 +62,10 @@ rpcRecHitsDQM = DQMEDAnalyzer('RPCMonitorRecHits',
         RB4    = cms.untracked.vdouble(-700, -655,-530,-410, -390,-265,-145, -120,5,120, 145,265,390, 410,530,655, 700),
     ),
     binEdgesR = cms.PSet(
-        RE1 = cms.untracked.vdouble(0, 278,358,408,463, 509,565,643,684, 800),
-        RE2 = cms.untracked.vdouble(0, 333,381,436,499, 505,566,643,696, 800),
-        RE3 = cms.untracked.vdouble(0, 333,381,436,499, 505,566,643,696, 800), # There can be RE3/1 and RE4/1 in the upgrade
-        RE4 = cms.untracked.vdouble(0, 333,381,436,499, 505,566,643,696, 800), # There can be RE3/1 and RE4/1 in the upgrade
+        RE1 = cms.untracked.vdouble(0, 278,359,409,463, 509,566,643,684, 800),
+        RE2 = cms.untracked.vdouble(0, 333,382,437,499, 505,566,644,696, 800),
+        RE3 = cms.untracked.vdouble(0, 333,382,437,499, 505,566,644,696, 800), # There can be RE3/1 and RE4/1 in the upgrade
+        RE4 = cms.untracked.vdouble(0, 333,382,437,499, 505,566,644,696, 800), # There can be RE3/1 and RE4/1 in the upgrade
     ),
     binEdgesPhi = cms.PSet(
         RB1in = cms.untracked.vdouble(
@@ -97,12 +112,13 @@ rpcRecHitsDQM = DQMEDAnalyzer('RPCMonitorRecHits',
         ),
 
         RE = cms.untracked.vdouble(
-            -3.054, -2.88 , -2.705, -2.531, -2.356, -2.182,
-            -2.007, -1.833, -1.658, -1.484, -1.309, -1.134,
-            -0.96 , -0.785, -0.611, -0.436, -0.262, -0.087,
-             0.087,  0.262,  0.436,  0.611,  0.785,  0.96 ,
-             1.134,  1.309,  1.484,  1.658,  1.833,  2.007,
-             2.182,  2.356,  2.531,  2.705,  2.88 ,  3.054, 2*pi-3.054
+            -0.093, ## first padding below 
+            -0.082,0.087,0.262,0.431, 0.441,0.611,0.785,0.955,
+             0.965,1.134,1.309,1.479, 1.489,1.658,1.833,2.002,
+             2.012,2.182,2.356,2.526, 2.536,2.705,2.880,3.049,
+             3.059,3.229,3.403,3.573, 3.583,3.752,3.927,4.096,
+             4.106,4.276,4.450,4.620, 4.630,4.799,4.974,5.144,
+             5.154,5.323,5.498,5.667, 5.677,5.847,6.021,6.195-0.005,
         ),
     ),
 )

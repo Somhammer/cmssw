@@ -26,8 +26,16 @@ RPCMonitorRecHits::RPCMonitorRecHits(const edm::ParameterSet& pset):
     binsPhi_RB_[31] = to_vfloat(binEdgesPhi.getUntrackedParameter<vdouble>("RB3"   ));
     binsPhi_RB_[41] = to_vfloat(binEdgesPhi.getUntrackedParameter<vdouble>("RB4"   ));
     binsPhi_RE_     = to_vfloat(binEdgesPhi.getUntrackedParameter<vdouble>("RE"    ));
+
+    for ( auto key : binsPhi_RB_ ) binEdge0PhiBarrel_ = *std::min_element(key.second.begin(), key.second.end());
+    binEdge0PhiEndcap_ = *std::min_element(binsPhi_RE_.begin(), binsPhi_RE_.end());
+    binEdge0PhiBarrel_ = std::min(binEdge0PhiBarrel_, -0.279);
+    binEdge0PhiEndcap_ = std::min(binEdge0PhiEndcap_, -0.100);
   }
   else {
+    binEdge0PhiBarrel_ = -0.279;
+    binEdge0PhiEndcap_ = -3.054;
+
     const int nbinsPhi = pset.getUntrackedParameter<double>("nbinsPhi", 100);
     std::vector<float> binsPhi;
     binsPhi.reserve(nbinsPhi+1);
@@ -82,6 +90,7 @@ RPCMonitorRecHits::RPCMonitorRecHits(const edm::ParameterSet& pset):
       labelsPhi_RB_[22] = binLabelsPhi.getUntrackedParameter<vstring>("RB");
       labelsPhi_RB_[31] = binLabelsPhi.getUntrackedParameter<vstring>("RB3");
       labelsPhi_RB_[41] = binLabelsPhi.getUntrackedParameter<vstring>("RB4");
+      labelsPhi_RE_ = binLabelsPhi.getUntrackedParameter<vstring>("RE");
     }
   }
 }
@@ -164,6 +173,9 @@ void RPCMonitorRecHits::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
     hOccupXY_byDisk_[disk] = ibooker.book2D(name, title, binsPhi_RE_.size()-1, &(binsPhi_RE_[0]),
                                                          binsR_RE_[d].size()-1, &(binsR_RE_[d][0]));
     if ( doSetAxisLabel_ ) {
+      for ( size_t i=0; i<labelsPhi_RE_.size(); ++i ) {
+        hOccupXY_byDisk_[disk]->setBinLabel(i+1, labelsPhi_RE_[i], 1);
+      }
       const auto& labelsR = labelsR_RE_[d];
       for ( size_t i=0; i<labelsR.size(); ++i ) {
         hOccupXY_byDisk_[disk]->setBinLabel(i+1, labelsR[i], 2);
