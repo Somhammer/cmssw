@@ -7,16 +7,13 @@
 
 #include <string>
 
-class RPCEventSummary : public DQMEDHarvester {
+class RPCEventSummary : public DQMEDHarvester
+{
 public:
-  /// Constructor
   RPCEventSummary(const edm::ParameterSet &ps);
-
-  /// Destructor
-  ~RPCEventSummary() override;
+  ~RPCEventSummary() override = default;
 
 protected:
-  void beginJob() override;
   void dqmEndLuminosityBlock(DQMStore::IBooker &,
                              DQMStore::IGetter &,
                              edm::LuminosityBlock const &,
@@ -25,10 +22,12 @@ protected:
 
 private:
   void clientOperation(DQMStore::IGetter &igetter);
-  std::string eventInfoPath_, prefixDir_;
+  const int minFED_, maxFED_;
+  const int nDisks_;
+
+  std::string eventInfoPath_;
 
   //  bool tier0_;
-  bool enableReportSummary_;
   int prescaleFactor_, minimumEvents_;
 
   bool init_, isIn_;
@@ -36,10 +35,7 @@ private:
   int lumiCounter_;
   std::string globalFolder_, prefixFolder_;
 
-  int numberDisk_;
   bool doEndcapCertification_;
-  std::pair<int, int> FEDRange_;
-  int NumberOfFeds_;
 
   enum RPCQualityFlags { DEAD = 6, PARTIALLY_DEAD = 5 };
 };
