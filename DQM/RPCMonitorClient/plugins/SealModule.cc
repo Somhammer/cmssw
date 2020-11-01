@@ -14,6 +14,3 @@ DEFINE_FWK_MODULE(RPCDcsInfoClient);
 #include <DQM/RPCMonitorClient/interface/RPCEventSummary.h>
 DEFINE_FWK_MODULE(RPCEventSummary);
 
-#include <DQM/RPCMonitorClient/interface/RPCDCSSummary.h>
-DEFINE_FWK_MODULE(RPCDCSSummary);
-

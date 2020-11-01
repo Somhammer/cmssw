@@ -37,8 +37,6 @@ process.rpcEventSummary.PrescaleFactor = 1
 
 #process.rpcOccupancyTest = cms.EDAnalyzer("RPCOccupancyTest")
 
-process.load("DQM.RPCMonitorClient.RPCDCSSummary_cfi")
-
 ################# DQM Client Modules ####################
 process.load("DQM.RPCMonitorClient.RPCDqmClient_cfi")
 process.rpcdqmclient.RPCDqmClientList = cms.untracked.vstring("RPCNoisyStripTest","RPCOccupancyTest","RPCClusterSizeTest","RPCDeadChannelTest","RPCMultiplicityTest ")
@@ -79,7 +77,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 #process.rpcClientSequence = cms.Sequence(process.dqmEnv*process.readMeFromFile*process.qTesterRPC*process.rpcdqmclient*process.rpcOccupancyTest*process.rpcNoise*process.rpcChamberQuality*process.rpcEventSummary*process.dqmSaver)
 
 
-process.p = cms.Path(process.readMeFromFile*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.rpcDCSSummary*process.dqmSaver)
+process.p = cms.Path(process.readMeFromFile*process.dqmEnv*process.qTesterRPC*process.rpcdqmclient*process.rpcChamberQuality*process.rpcEventSummary*process.dqmSaver)
 
 
 
