@@ -26,21 +26,16 @@ RPCMonitorRecHits::RPCMonitorRecHits(const edm::ParameterSet& pset):
     binsPhi_RB_[31] = to_vfloat(binEdgesPhi.getUntrackedParameter<vdouble>("RB3"   ));
     binsPhi_RB_[41] = to_vfloat(binEdgesPhi.getUntrackedParameter<vdouble>("RB4"   ));
     binsPhi_RE_     = to_vfloat(binEdgesPhi.getUntrackedParameter<vdouble>("RE"    ));
-
-    for ( auto key : binsPhi_RB_ ) binEdge0PhiBarrel_ = *std::min_element(key.second.begin(), key.second.end());
-    binEdge0PhiEndcap_ = *std::min_element(binsPhi_RE_.begin(), binsPhi_RE_.end());
-    binEdge0PhiBarrel_ = std::min(binEdge0PhiBarrel_, -0.279);
-    binEdge0PhiEndcap_ = std::min(binEdge0PhiEndcap_, -0.100);
   }
   else {
-    binEdge0PhiBarrel_ = -0.279;
-    binEdge0PhiEndcap_ = -3.054;
+    const double binEdge0PhiBarrel = -0.279;
+    const double binEdge0PhiEndcap = -3.054;
 
     const int nbinsPhi = pset.getUntrackedParameter<double>("nbinsPhi", 100);
     std::vector<float> binsPhi;
     binsPhi.reserve(nbinsPhi+1);
     const double dphi = 2*3.141592/nbinsPhi;
-    for ( int i=0; i<=nbinsPhi; ++i ) binsPhi.push_back(binEdge0PhiBarrel_ + dphi*i);
+    for ( int i=0; i<=nbinsPhi; ++i ) binsPhi.push_back(binEdge0PhiBarrel + dphi*i);
     binsPhi_RB_[11] = binsPhi;
     binsPhi_RB_[12] = binsPhi;
     binsPhi_RB_[21] = binsPhi;
@@ -49,7 +44,7 @@ RPCMonitorRecHits::RPCMonitorRecHits(const edm::ParameterSet& pset):
     binsPhi_RB_[41] = binsPhi;
 
     binsPhi.clear();
-    for ( int i=0; i<=nbinsPhi; ++i ) binsPhi.push_back(binEdge0PhiEndcap_ + dphi*i);
+    for ( int i=0; i<=nbinsPhi; ++i ) binsPhi.push_back(binEdge0PhiEndcap + dphi*i);
     binsPhi_RE_ = binsPhi;
   }
 
@@ -121,15 +116,14 @@ void RPCMonitorRecHits::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
     const std::string subdir = RPCHistoHelper::suggestPath(chId);
     ibooker.setCurrentFolder("RPC/"+subFolderName_+"/"+subdir);
 
-    hBx_byDetId_[chId] = ibooker.book1D("BunchCrossing_"+chamberName, "Bunch crossing "+chamberName, 11, -5.5, 5.5);
-    hCls_byDetId_[chId] = ibooker.book1D("ClusterSize_"+chamberName, "Cluster size "+chamberName, 14, 1, 15);
-    hClsBx0_byDetId_[chId] = ibooker.book1D("ClusterSizeAtBx0_"+chamberName, "Cluster size at Bx0"+chamberName, 14, 1, 15);
+    hBx_byDetId_[chId] = ibooker.book1D("BunchCrossing_"+chamberName, "Bunch crossing "+chamberName+";Bunch crossing;Entries", 11, -5.5, 5.5);
+    hCls_byDetId_[chId] = ibooker.book1D("ClusterSize_"+chamberName, "Cluster size "+chamberName+";Cluster size;Entries", 14, 1, 15);
 
     const int nRolls = rollNames.size();
-    hOccup_byDetId_[chId] = ibooker.book2D("Occupancy_"+chamberName, "Occupancy "+chamberName, nstrip, 1, nstrip+1, nRolls, 1, nRolls+1);
+    hNHits_byDetId_[chId] = ibooker.book2D("NHits_"+chamberName, "Number of Hits "+chamberName, nstrip, 1, nstrip+1, nRolls, 1, nRolls+1);
     for ( int i=0; i<nRolls; ++i ) {
-      const std::string label = rollNames[i];//.substr(chamberName.size());
-      hOccup_byDetId_[chId]->setBinLabel(i+1, label, 2);
+      const std::string label = rollNames[i].substr(chamberName.size()+1);
+      hNHits_byDetId_[chId]->setBinLabel(i+1, label, 2);
     }
   }
 
@@ -141,20 +135,20 @@ void RPCMonitorRecHits::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
   }};
   for ( auto key : layerNames ) {
     const int s = key.first;
-    const std::string name = "Occupancy_"+key.second;
-    const std::string title = "Occupancy "+key.second+";z(cm);#phi";
-    hOccupXY_byLayer_[s] = ibooker.book2D(name, title, binsZ_RB_[s].size()-1, &(binsZ_RB_[s][0]),
+    const std::string name = "NHits_"+key.second;
+    const std::string title = "NHits "+key.second+";z(cm);#phi";
+    hNHitsXY_byLayer_[s] = ibooker.book2D(name, title, binsZ_RB_[s].size()-1, &(binsZ_RB_[s][0]),
                                                        binsPhi_RB_[s].size()-1, &(binsPhi_RB_[s][0]));
 
     if ( doSetAxisLabel_ ) {
       const auto& labelsZ = labelsZ_RB_[s];
       for ( size_t i=0; i<labelsZ.size(); ++i ) {
-        hOccupXY_byLayer_[s]->setBinLabel(i+1, labelsZ[i], 1);
+        hNHitsXY_byLayer_[s]->setBinLabel(i+1, labelsZ[i], 1);
       }
       if ( doFillRollCenter_ ) {
         const auto& labelsPhi = labelsPhi_RB_[s];
         for ( size_t i=0; i<labelsPhi.size(); ++i ) {
-          hOccupXY_byLayer_[s]->setBinLabel(i+1, labelsPhi[i], 2);
+          hNHitsXY_byLayer_[s]->setBinLabel(i+1, labelsPhi[i], 2);
         }
       }
     }
@@ -168,17 +162,17 @@ void RPCMonitorRecHits::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
   for ( auto key : stationNames ) {
     const int disk = key.first;
     const int d = abs(disk);
-    const std::string name = "Occupancy_"+key.second;
-    const std::string title = "Occupancy "+key.second+";#phi;R (cm)";
-    hOccupXY_byDisk_[disk] = ibooker.book2D(name, title, binsPhi_RE_.size()-1, &(binsPhi_RE_[0]),
+    const std::string name = "NHits_"+key.second;
+    const std::string title = "Number of Hits "+key.second+";#phi;R (cm)";
+    hNHitsXY_byDisk_[disk] = ibooker.book2D(name, title, binsPhi_RE_.size()-1, &(binsPhi_RE_[0]),
                                                          binsR_RE_[d].size()-1, &(binsR_RE_[d][0]));
     if ( doSetAxisLabel_ ) {
       for ( size_t i=0; i<labelsPhi_RE_.size(); ++i ) {
-        hOccupXY_byDisk_[disk]->setBinLabel(i+1, labelsPhi_RE_[i], 1);
+        hNHitsXY_byDisk_[disk]->setBinLabel(i+1, labelsPhi_RE_[i], 1);
       }
       const auto& labelsR = labelsR_RE_[d];
       for ( size_t i=0; i<labelsR.size(); ++i ) {
-        hOccupXY_byDisk_[disk]->setBinLabel(i+1, labelsR[i], 2);
+        hNHitsXY_byDisk_[disk]->setBinLabel(i+1, labelsR[i], 2);
       }
     }
   }
@@ -192,43 +186,43 @@ void RPCMonitorRecHits::analyze(const edm::Event& event, const edm::EventSetup& 
 
   edm::Handle<RPCRecHitCollection> rpcRecHitsHandle;
   event.getByToken(rpcRecHitsToken_, rpcRecHitsHandle);
-  if ( rpcRecHitsHandle.isValid() ) {
-    if ( rpcRecHitsHandle->size() == 0 ) hEvents_->Fill(1);
+  if ( !rpcRecHitsHandle.isValid() ) return;
 
-    const LocalPoint lp0(0,0,0);
-    for ( auto hitItr = rpcRecHitsHandle->begin(); hitItr != rpcRecHitsHandle->end(); ++hitItr ) {
-      const int bx = hitItr->BunchX();
-      const int cls = hitItr->clusterSize();
-      const int strip1 = hitItr->firstClusterStrip();
-      const int strip2 = strip1+cls-1;
+  if ( rpcRecHitsHandle->size() > 0 ) hEvents_->Fill(1);
 
-      const auto rpcId = hitItr->rpcId();
-      const auto roll = rpcGeom->roll(rpcId);
-      const long long chId = rpcId.chamberId();
+  const LocalPoint lp0(0,0,0);
+  for ( auto hitItr = rpcRecHitsHandle->begin(); hitItr != rpcRecHitsHandle->end(); ++hitItr ) {
+    const int bx = hitItr->BunchX();
+    const int cls = hitItr->clusterSize();
+    const int strip1 = hitItr->firstClusterStrip();
+    const int strip2 = strip1+cls-1;
 
-      const int binRoll = RPCHistoHelper::findRollIndex(rpcId);
+    const auto rpcId = hitItr->rpcId();
+    const auto roll = rpcGeom->roll(rpcId);
+    const long long chId = rpcId.chamberId();
 
-      hBx_byDetId_[chId]->Fill(bx);
-      hCls_byDetId_[chId]->Fill(cls);
-      for ( int strip = strip1; strip <= strip2; ++strip ) {
-        hOccup_byDetId_[chId]->Fill(strip, binRoll);
-      }
+    const int binRoll = RPCHistoHelper::findRollIndex(rpcId);
 
-      if ( bx == 0 ) hClsBx0_byDetId_[chId]->Fill(cls);
+    hBx_byDetId_[chId]->Fill(bx);
+    hCls_byDetId_[chId]->Fill(cls);
+    for ( int strip = strip1; strip <= strip2; ++strip ) {
+      hNHits_byDetId_[chId]->Fill(strip, binRoll);
+    }
 
-      if ( rpcId.region() == 0 ) {
-        const int stla = rpcId.station()*10 + rpcId.layer();
-        const auto gPos = roll->toGlobal(doFillRollCenter_ ? lp0 : hitItr->localPosition());
-        const double phi = gPos.barePhi();
-        hOccupXY_byLayer_[stla]->Fill(gPos.z(), (phi >= binEdge0PhiBarrel_ ? phi : phi+2*3.141592));
-      }
-      else {
-        const int disk = rpcId.region()*rpcId.station();
-        const auto gPos = roll->toGlobal(doFillRollCenter_ ? lp0 : hitItr->localPosition());
-        //hOccupXY_byDisk_[disk]->Fill(gPos.x(), gPos.y());
-        const double phi = gPos.barePhi();
-        hOccupXY_byDisk_[disk]->Fill((phi >= binEdge0PhiEndcap_ ? phi : phi+2*3.141592), gPos.perp());
-      }
+    if ( rpcId.region() == 0 ) {
+      const int stla = rpcId.station()*10 + rpcId.layer();
+      const auto gPos = roll->toGlobal(doFillRollCenter_ ? lp0 : hitItr->localPosition());
+      const double phi = gPos.barePhi();
+      const double phi0 = hNHitsXY_byLayer_[stla]->getTH1()->GetYaxis()->GetBinLowEdge(2);
+      hNHitsXY_byLayer_[stla]->Fill(gPos.z(), (phi >= phi0 ? phi : phi+2*3.141592));
+    }
+    else {
+      const int disk = rpcId.region()*rpcId.station();
+      const auto gPos = roll->toGlobal(doFillRollCenter_ ? lp0 : hitItr->localPosition());
+      //hNHitsXY_byDisk_[disk]->Fill(gPos.x(), gPos.y());
+      const double phi = gPos.barePhi();
+      const double phi0 = hNHitsXY_byDisk_[disk]->getTH1()->GetXaxis()->GetBinLowEdge(2);
+      hNHitsXY_byDisk_[disk]->Fill((phi >= phi0 ? phi : phi+2*3.141592), gPos.perp());
     }
   }
 }

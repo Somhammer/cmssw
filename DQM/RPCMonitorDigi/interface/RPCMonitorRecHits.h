@@ -30,7 +30,6 @@ private:
   edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken_;
   const std::string subFolderName_;
   const bool doFillRollCenter_, doSetAxisLabel_;
-  double binEdge0PhiBarrel_, binEdge0PhiEndcap_;
   std::map<int, std::vector<float>> binsPhi_RB_;
   std::vector<float> binsPhi_RE_;
   std::map<int, std::vector<float>> binsZ_RB_, binsR_RE_;
@@ -40,10 +39,9 @@ private:
   MonitorElement* hEvents_;
   typedef std::map<long long, MonitorElement*> DetId2ME;
   DetId2ME hBx_byDetId_, hCls_byDetId_;
-  DetId2ME hOccup_byDetId_;
-  DetId2ME hClsBx0_byDetId_;
+  DetId2ME hNHits_byDetId_;
 
-  std::map<int, MonitorElement*> hOccupXY_byLayer_, hOccupXY_byDisk_;
+  std::map<int, MonitorElement*> hNHitsXY_byLayer_, hNHitsXY_byDisk_;
 };
 
 #endif
