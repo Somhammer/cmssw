@@ -35,7 +35,7 @@ rpcRecHitsDQM = DQMEDAnalyzer('RPCMonitorRecHits',
             "", "S09",
             "", "S10-","S10+",
             "", "S11",
-            "", "S12-" "S12+",
+            "", "S12-","S12+",
         ),
     ),
     binEdgesZ = cms.PSet(
