@@ -47,22 +47,52 @@ void RPCHistoHelper::decorateAxisBarrelRoll(TH1* h, const std::string prefix, co
     h->GetXaxis()->SetBinLabel(i, buffer);
   }
 
-  const int nLabels = 22;
+  const int nLabels = 24;
   const static std::array<const std::string, nLabels> labels = {{
     "RB1in_B", "RB1in_F", "RB1out_B", "RB1out_F",
     "RB2in_B", "RB2in_F", "RB2in_M", "RB2out_M", "RB2out_B", "RB2out_F",
     "RB3-_B", "RB3-F", "RB3+_B", "RB3+_F",
+    "RB4_B", "RB4_F",
     "RB4,-_B", "RB4,-_F", "RB4+_B", "RB4+_F", // comma in RB4,- makes DQM axis little bit nicd
     "RB4--_B", "RB4--_F", "RB4++_B", "RB4++_F"
   }};
 
-  // Fill RB1in,out,RB2in_B/F
-  for ( int i=0; i<6; ++i ) h->GetYaxis()->SetBinLabel(i+1, labels[i].c_str());
+  // Fill RB1, RB2in_B
+  for ( int i=0; i<5; ++i ) h->GetYaxis()->SetBinLabel(i+1, labels[i].c_str());
+  // Fill RB2
   // RB2in_M for wheel -1,0,+1 & RB2out_M for wheel -2,+2
-  if ( std::abs(wheel) < 2 ) h->GetYaxis()->SetBinLabel(7, labels[6].c_str());
-  else h->GetYaxis()->SetBinLabel(7, labels[7].c_str());
-  // Fill RB2out_B,F, RB3 and RB4
-  for ( int i=8; i<nLabels; ++i ) h->GetYaxis()->SetBinLabel(i, labels[i].c_str());
+  if ( std::abs(wheel) < 2 ) {
+    h->GetYaxis()->SetBinLabel(6, labels[6].c_str());
+    h->GetYaxis()->SetBinLabel(7, labels[5].c_str());
+    h->GetYaxis()->SetBinLabel(8, labels[8].c_str());
+  }
+  else {
+    h->GetYaxis()->SetBinLabel(6, labels[5].c_str());
+    h->GetYaxis()->SetBinLabel(7, labels[8].c_str());
+    h->GetYaxis()->SetBinLabel(8, labels[7].c_str());
+  }
+  // Fill RB2out_B
+  h->GetYaxis()->SetBinLabel(9, labels[9].c_str());
+  // Fill RB3
+  for ( int i=10; i<14; ++i ) h->GetYaxis()->SetBinLabel(i, labels[i].c_str());
+  // Fill RB4
+  const int nYbin = h->GetNbinsY();
+  for ( int i=14; i<nLabels; ++i ) {
+    int j = i;
+    if ( i > nYbin ) break;
+    if ( nYbin != 15 ) j = i + 2;
+    h->GetYaxis()->SetBinLabel(i, labels[j].c_str());
+  }
+  /*
+  if ( h->GetYaxis()->GetNbinsY() == 15 ) {
+    for ( int i=14; i<16; ++i ) h->GetYaxis()->SetBinLabel(i, labels[i].c_str());
+  }
+  else if( h->GetYaxis()->GetNbinsY() == 17 ) {
+    for ( int i=16; i<20; ++i ) h->GetYaxis()->SetBinLabel(i-2, labels[i].c_str());
+  }
+  else {
+    for ( int i=16; i<24; ++i ) h->GetYaxis()->SetBinLabel(i-2, labels[i].c_str());
+  */
 }
 
 void RPCHistoHelper::decorateAxisEndcapRoll(TH1* h, const std::string prefix, const int disk)
