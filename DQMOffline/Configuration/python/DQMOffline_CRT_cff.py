@@ -4,7 +4,6 @@ siStripCertificationInfo = cms.EDAnalyzer("SiStripCertificationInfo")
 from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
 from DQM.EcalMonitorClient.EcalCertification_cfi import *
 from DQM.DTMonitorClient.dtDQMOfflineCertification_cff import *
-from DQM.RPCMonitorClient.RPCDataCertification_cfi import *
 from DQM.CSCMonitorModule.csc_certification_info_cfi import *
 from DQM.EcalPreshowerMonitorModule.ESDataCertificationTask_cfi import *
 
@@ -17,7 +16,6 @@ crt_dqmoffline = cms.Sequence( siStripCertificationInfo *
                                sipixelCertification *
                                ecalCertification *
                                dtCertificationSummary *
-                               rpcDataCertification *
                                cscCertificationInfo *
                                ecalPreshowerDataCertificationTask *
                                trackingCertificationInfo *
